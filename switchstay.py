@@ -123,9 +123,9 @@ for trial in trialOrder:
         
     elif trial['type'] == 'advice':
         videoFile = '%s_%s.mov' % (trial['advisor_state'], trial['advice'])
-        print os.path.isfile(videoFile)
-        adviceStim = visual.MovieStim(w, filename = videoFile)
-        #adviceStim = visual.TextStim(w, text = videoFile)
+        #print os.path.isfile(videoFile)
+        #adviceStim = visual.MovieStim(w, filename = videoFile)
+        adviceStim = visual.TextStim(w, text = videoFile)
         adviceStim.draw()
         
         w.flip()
@@ -150,15 +150,69 @@ for trial in trialOrder:
         
         starVertices = [makeStar(coords, .25) for coords in starLocations]
         for star in range(len(starVertices)):
-            for s in range(star+1):
-                starStim = ShapeStim(w, vertices = starVertices[s], fillColor='green', lineWidth=2, lineColor='white')
-                starStim.draw()
+            # Draw all stars that have already been presented
+            prevStars = []
+            for s in range(star):
+                prevStar = ShapeStim(w, vertices = starVertices[s], fillColor='green', lineWidth=2, lineColor='white')
+                prevStars.append(prevStar)
+            
+            # Helper function to draw all previous stars quickly
+            def drawStars():
+                for s in prevStars:
+                    s.draw()
+                    
+            # Draw new star
+            newStar = ShapeStim(w, vertices = starVertices[star], fillColor='green', lineWidth=2, lineColor='white')
+            
+            endSize = np.array(newStar.size)
+            animationTimer = core.CountdownTimer(1)
+            
+            while animationTimer.getTime() > 0:
+                newStar.setSize(endSize-animationTimer.getTime())
+                drawStars()
+                newStar.draw()
+                w.flip()
                 
+            newStar.setSize(endSize)
+            drawStars()
+            newStar.draw()
             w.flip()
-            core.wait(1)
         
         core.wait(1)
-        w.flip()
+                
+#            while starStim.size < endSize:
+#                starStim.setSize(starStim.size + startSize)
+#                starStim.draw()
+#                w.flip()
+#                
+#            starStim.setSize(endSize)
+#            starStim.draw()
+#            w.flip()
+         
+
+#            while animationTimer.getTime() > 0:
+#                # First: turn to the left
+#                while starStim.ori > -15:
+#                    starStim.setOri(1, '-') # rotate
+#                    starStim.draw()
+#                    w.flip()
+#                
+#                # Next: Turn all the way to the right
+#                while starStim.ori < 15:
+#                    starStim.setOri(1, '+') # rotate
+#                    starStim.draw()
+#                    w.flip()
+#                
+#                # Finally: Turn all the way to the center
+#                while starStim.ori > 0:
+#                    starStim.setOri(1, '-') # rotate
+#                    starStim.draw()
+#                    w.flip()
+                
+                #print animationTimer.getTime()
+                       
+        #core.wait(1)
+        #w.flip()
         
     else:
         blockType = trial['advisor_state']
